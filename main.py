@@ -27,7 +27,7 @@ if not GEMINI_API_KEY:
     # For now, we'll let the app start but LLM calls will fail.
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('models/gemini-pro-latest') # Using gemini-pro for text generation
+model = genai.GenerativeModel('gemini-1.5-flash') # Usando gemini-1.5-flash para mayores límites y velocidad
 
 # --- End LLM Integration ---
 
