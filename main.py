@@ -39,6 +39,10 @@ def generate_recipe_at_root(request: RecipeRequest):
         instructions="1. Mezclar todo.\n2. Cocinar.\n3. Servir."
     )
 
+@app.get("/health")
+async def health():
+    return {"status": "ok", "model": "gemini-1.5-flash"}
+
 @app.post("/generate-recipe", response_model=RecipeResponse)
 async def generate_recipe(request: RecipeRequest):
     if not GEMINI_API_KEY:
