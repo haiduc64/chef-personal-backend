@@ -5,7 +5,7 @@ import os
 import google.generativeai as genai
 import json
 
-# Configure logging
+# Configuración de logs
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -18,45 +18,40 @@ class RecipeResponse(BaseModel):
     title: str
     instructions: str
 
-# --- LLM Integration ---
+# --- Configuración de Gemini ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
-    logger.error("GEMINI_API_KEY environment variable not set.")
+    logger.error("GEMINI_API_KEY no encontrada en el entorno.")
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-# NATIVELY FORCE JSON OUTPUT
+# Usamos el nombre largo oficial que funciona en todas las versiones de la API
+MODEL_NAME = 'models/gemini-1.5-flash'
 model = genai.GenerativeModel(
-    model_name='models/gemini-1.5-flash',
+    model_name=MODEL_NAME,
     generation_config={"response_mime_type": "application/json"}
 )
-
-# --- End LLM Integration ---
+# --- Fin de Configuración ---
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "model": "gemini-1.5-flash-json-mode"}
+    return {"status": "ok", "model": MODEL_NAME, "mode": "json"}
 
 @app.post("/", response_model=RecipeResponse)
-def generate_recipe_at_root(request: RecipeRequest):
-    return RecipeResponse(
-        title=f"Receta con {request.ingredients}",
-        instructions="1. Mezclar todo.\n2. Cocinar.\n3. Servir."
-    )
+def root_check(request: RecipeRequest):
+    return RecipeResponse(title="Server Active", instructions="Use /generate-recipe")
 
 @app.post("/generate-recipe", response_model=RecipeResponse)
 async def generate_recipe(request: RecipeRequest):
     if not GEMINI_API_KEY:
-        raise HTTPException(status_code=500, detail="GEMINI_API_KEY no configurada.")
+        raise HTTPException(status_code=500, detail="API Key no configurada.")
 
-    logger.info(f"Received ingredients: {request.ingredients}")
-
-    prompt = f"""Genera una receta de cocina en JSON con este esquema exacto:
+    prompt = f"""Genera una receta de cocina basada en estos ingredientes: {request.ingredients}.
+    Responde estrictamente en formato JSON con este esquema:
     {{
         "title": "nombre de la receta",
-        "instructions": "pasos detallados de la receta"
+        "instructions": "pasos numerados"
     }}
-    Ingredientes disponibles: {request.ingredients}
     """
 
     try:
@@ -64,9 +59,10 @@ async def generate_recipe(request: RecipeRequest):
         recipe_data = json.loads(response.text)
         
         return RecipeResponse(
-            title=recipe_data.get("title", "Receta Personalizada"),
-            instructions=recipe_data.get("instructions", "Instrucciones no generadas.")
+            title=recipe_data.get("title", "Receta de Chef IA"),
+            instructions=recipe_data.get("instructions", "No se pudieron generar los pasos.")
         )
     except Exception as e:
-        logger.error(f"Error generating recipe: {e}")
-        raise HTTPException(status_code=500, detail=f"Error al generar receta: {str(e)}")
+        logger.error(f"Error en la llamada a Gemini: {str(e)}")
+        # Si falla el modo JSON, intentamos un mensaje de error claro
+        raise HTTPException(status_code=500, detail=f"Error de la IA: {str(e)}")
