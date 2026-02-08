@@ -1,0 +1,18 @@
+INFO:     Started server process [28759]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:main:Received ingredients at /generate-recipe: cebolla, queso, tomate, jamón, huevos 
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1759862432.128796   28759 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+INFO:main:LLM Raw Response: ```json
+{
+    "title": "Tortilla Rellena de Jamón y Queso",
+    "instructions": "1. Picar la cebolla, el tomate y el jamón en trozos pequeños.\n2. Batir los huevos en un bol y sazonar al gusto.\n3. En una sartén caliente con aceite, saltear la cebolla. Añadir el jamón y el tomate y cocinar durante 2 minutos.\n4. Verter los huevos batidos en la sartén sobre los ingredientes. Cocinar a fuego medio.\n5. Cuando la base esté cuajada, espolvorear el queso por encima.\n6. Doblar la tortilla por la mitad y cocinar 1 minuto más por cada lado. Servir caliente."
+}
+```
+INFO:     192.168.1.151:48272 - "POST /generate-recipe HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [28759]
