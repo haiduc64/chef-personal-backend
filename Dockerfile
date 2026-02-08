@@ -13,12 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application's code into the container
 COPY . .
 
-# Make port 8000 available to the world outside this container
-EXPOSE 8080
-
-# Define environment variable for the API key.
-# The actual key will be passed in during the run phase on the cloud provider.
-ENV GEMINI_API_KEY=""
+# Make port 10000 available to the world outside this container
+EXPOSE 10000
 
 # Run uvicorn when the container launches
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-10000}"]
